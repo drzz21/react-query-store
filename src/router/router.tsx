@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import { CompleteListPage, MensPage, NewProduct, StoreLayout, WomensPage } from '../products';
+import { CompleteListPage, MensPage, NewProduct, StoreLayout, WomensPage,ProductById } from '../products';
 import { ErrorPage } from '../ErrorPage';
 
 
@@ -27,6 +27,11 @@ export const router = createBrowserRouter([
         path: "new",
         element: <NewProduct />
       },
+      //creamos nueustra ruta que consultara el producto por id
+      {
+        path: "product/:id",
+        element: <ProductById />
+      }
     ]
   },
   {
