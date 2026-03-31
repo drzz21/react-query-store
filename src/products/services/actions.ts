@@ -54,7 +54,7 @@ interface ProductLike {
 //los valores que tiene el producto creado
 export const createProduct = async (product: ProductLike) => {
 	//ponemos el delay de 2 segundos
-	// await sleep(2);
+	await sleep(5);
 	//de este modo se hace la insercion en la api de json server, enviando el producto en el body
 	//de la req
 	const { data } = await productsApi.post<Product>('/products', product);
