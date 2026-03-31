@@ -1,11 +1,17 @@
 import { useParams } from 'react-router-dom';
 import { useProduct } from '../hooks/useProduct';
 import { ProductCard } from '../components/ProductCard';
+import { useEffect } from 'react';
 
 export const ProductById = () => {
 	const { id } = useParams<{ id: string }>();
 
 	const { product, isLoading } = useProduct({ id: Number(id) });
+
+	//agregamos un efecto simple, para ir al top al entrar a detalle de producto
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, []);
 
 	//en esta vista tomamos el parametro id de la url, y con eso hacemos una query
 	//para consultar la informacion de dicho producto, en una card
