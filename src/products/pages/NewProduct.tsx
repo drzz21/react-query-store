@@ -1,7 +1,6 @@
 import { Button, Image, Input, Textarea } from '@nextui-org/react';
-import { useMutation } from '@tanstack/react-query';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { productActions } from '..';
+import {  useProductMutation } from '..';
 
 interface FormInputs {
 	title: string;
@@ -14,12 +13,16 @@ interface FormInputs {
 export const NewProduct = () => {
 	//declaramos nuestra mutacion, mandando la referencia de la funcion
 	//que hace la mutacion, definiendo el onsucess de  dicha funcion QUE ES LO QUE PASARÁ SI ES EXITOSA
-	const productMutation = useMutation({
-		mutationFn: productActions.createProduct,
-		onSuccess: (data) => {
-			console.log('Producto creado:', data);
-		},
-	});
+	// const productMutation = useMutation({
+	// 	mutationFn: productActions.createProduct,
+	// 	onSuccess: (data) => {
+	// 		console.log('Producto creado:', data);
+	// 	},
+	// });
+
+	//eliminamos nuestra configuracion de mutacion aqui
+	//e importamos solo el hook
+	const productMutation = useProductMutation();
 
 	//hacemos la configuracion de react hook form para enlazar nuestro form
 	//y definir la estructura que tendrá,

@@ -8,6 +8,8 @@ export { useProducts } from './hooks/useProducts';
 export { useProduct } from './hooks/useProduct';
 export { usePrefetchProduct } from './hooks/usePrefetchProduct';
 
+export { useProductMutation } from './hooks/useProductMutation';
+
 // ojo aqui, si solo exportamos una interfaz, exportamos como tipo
 export type { Product} from './interfaces/product';
 
