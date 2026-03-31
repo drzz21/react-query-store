@@ -14,7 +14,31 @@ export const NewProduct = () => {
 	//y definir la estructura que tendrá,
 	//control es para enlazar react hook form en este caso con los formularios
 	//de nextui, handleSubmit es para manejar el submit del formulario
-	const { control, handleSubmit } = useForm<FormInputs>({});
+	//vamos a importar el watch para observar los cambios en un elemento del form
+	const { control, handleSubmit,watch } = useForm<FormInputs>({
+		// defaultValues: {
+		// 	title: '',
+		// 	price: 0,
+		// 	description: '',
+		// 	category: "men's clothing",
+		// 	image: '',
+		// },
+		//definimos estos valores por defecto para poder comenzar a insertar
+		//rapidamente
+		defaultValues: {
+			title: 'teclado',
+			price: 150.22,
+			description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.',
+			category: "men's clothing",
+			image: 'https://m.media-amazon.com/images/I/612RsETDnzL._AC_UF894,1000_QL80_.jpg',
+		},
+	});
+
+	//de esta forma observamos los cambios en un elemento, 
+	//esta variable siempre tendra el ultimo valor del form de este elemento
+	//se hace asi porque rhf no actualiza siempre los valores para 
+	//optimizar el rendimiento, entonces con watch podemos observar los cambios
+	const newImage = watch('image');
 
 	const onSubmit: SubmitHandler<FormInputs> = (data: FormInputs) => {
 		console.log(data);
@@ -51,7 +75,8 @@ export const NewProduct = () => {
 							render={({ field }) => (
 								<Input
 									value={field.value?.toString()}
-									onChange={field.onChange}
+									// convertimos esta variable a numero de esta forma
+									onChange={ev=>field.onChange(Number(ev.target.value))}
 									className="mt-2"
 									type="number"
 									label="Precio del producto"
@@ -126,7 +151,8 @@ export const NewProduct = () => {
 							height: '600px',
 						}}
 					>
-						<Image src="https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg" />
+						{/* mostramos siempre el valor actualizado de la imagen */}
+						<Image src={newImage} />
 					</div>
 				</div>
 			</form>
