@@ -1,5 +1,7 @@
 import { Button, Image, Input, Textarea } from '@nextui-org/react';
+import { useMutation } from '@tanstack/react-query';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { productActions } from '..';
 
 interface FormInputs {
 	title: string;
@@ -10,12 +12,21 @@ interface FormInputs {
 }
 
 export const NewProduct = () => {
+	//declaramos nuestra mutacion, mandando la referencia de la funcion
+	//que hace la mutacion, definiendo el onsucess de  dicha funcion QUE ES LO QUE PASARÁ SI ES EXITOSA
+	const productMutation = useMutation({
+		mutationFn: productActions.createProduct,
+		onSuccess: (data) => {
+			console.log('Producto creado:', data);
+		},
+	});
+
 	//hacemos la configuracion de react hook form para enlazar nuestro form
 	//y definir la estructura que tendrá,
 	//control es para enlazar react hook form en este caso con los formularios
 	//de nextui, handleSubmit es para manejar el submit del formulario
 	//vamos a importar el watch para observar los cambios en un elemento del form
-	const { control, handleSubmit,watch } = useForm<FormInputs>({
+	const { control, handleSubmit, watch } = useForm<FormInputs>({
 		// defaultValues: {
 		// 	title: '',
 		// 	price: 0,
@@ -28,20 +39,24 @@ export const NewProduct = () => {
 		defaultValues: {
 			title: 'teclado',
 			price: 150.22,
-			description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.',
+			description:
+				'Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas, doloremque.',
 			category: "men's clothing",
 			image: 'https://m.media-amazon.com/images/I/612RsETDnzL._AC_UF894,1000_QL80_.jpg',
 		},
 	});
 
-	//de esta forma observamos los cambios en un elemento, 
+	//de esta forma observamos los cambios en un elemento,
 	//esta variable siempre tendra el ultimo valor del form de este elemento
-	//se hace asi porque rhf no actualiza siempre los valores para 
+	//se hace asi porque rhf no actualiza siempre los valores para
 	//optimizar el rendimiento, entonces con watch podemos observar los cambios
 	const newImage = watch('image');
 
 	const onSubmit: SubmitHandler<FormInputs> = (data: FormInputs) => {
 		console.log(data);
+		//ejecutamos el mutate de nuestro react query enviando la info
+		//del formulario que guardamos con rhf
+		productMutation.mutate(data);
 	};
 
 	return (
@@ -76,7 +91,9 @@ export const NewProduct = () => {
 								<Input
 									value={field.value?.toString()}
 									// convertimos esta variable a numero de esta forma
-									onChange={ev=>field.onChange(Number(ev.target.value))}
+									onChange={(ev) =>
+										field.onChange(Number(ev.target.value))
+									}
 									className="mt-2"
 									type="number"
 									label="Precio del producto"
@@ -139,8 +156,21 @@ export const NewProduct = () => {
 
 						<br />
 						{/* ojo poner de tipo submit el boton para usarlo */}
-						<Button type="submit" className="mt-2" color="primary">
-							Crear
+						<Button
+							type="submit"
+							className="mt-2"
+							// definimos estos valores y colores dinamicos
+							//para que se desactive y muestre otro texto si no se ha resuelto la mutacion
+							color={
+								productMutation.isPending
+									? 'default'
+									: 'primary'
+							}
+							isDisabled={productMutation.isPending}
+						>
+							{productMutation.isPending
+								? 'Creando...'
+								: 'Crear producto'}
 						</Button>
 					</div>
 
