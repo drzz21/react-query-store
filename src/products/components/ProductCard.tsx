@@ -5,15 +5,28 @@ import { Link } from 'react-router-dom';
 interface Props {
 	product: Product;
 	fullDescription?: boolean;
+	prefetchProduct?: (id: number) => Promise<void>;
 }
 
 //intercambio de variables hardcodeadas por los productos que se pasan
 //via props
-export const ProductCard = ({ product, fullDescription = false }: Props) => {
+export const ProductCard = ({
+	product,
+	fullDescription = false,
+	prefetchProduct,
+}: Props) => {
 	return (
 		// redireccionamos al detalle del producto al hacer click
 		// sobre la card del producto
-		<Link to={`product/${product.id}`}>
+		<Link
+			//recibimos la funcion prefetch y la usamos
+			//enviando el id del producto que queremos prefetchar
+			//esto lo hacemos en el mouseenter
+			to={`product/${product.id}`}
+			//agregamos el&& porque la funcion puede no existir
+			//y nos queremos asegurar de que existe
+			onMouseEnter={() => prefetchProduct && prefetchProduct(product.id)}
+		>
 			<Card className="relative flex flex-col md:flex-row md:space-x-5 space-y-3 md:space-y-0 rounded-xl shadow-lg p-3 max-w-xs md:max-w-3xl mx-auto border border-white bg-white">
 				<div className="w-full md:w-1/3 bg-white grid place-items-center">
 					<Image
@@ -37,9 +50,9 @@ export const ProductCard = ({ product, fullDescription = false }: Props) => {
 					<p className="md:text-lg text-gray-500 text-base">
 						{/* con la prop full description definimos dinamicamente si mostraremos
 						o no la descripcion completa del producto */}
-						{
-							fullDescription ? product.description : product.description.slice(0, 50) + '...'
-						}
+						{fullDescription
+							? product.description
+							: product.description.slice(0, 50) + '...'}
 					</p>
 
 					<p className="text-xl font-black text-gray-800">
