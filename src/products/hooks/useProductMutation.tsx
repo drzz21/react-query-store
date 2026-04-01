@@ -8,7 +8,37 @@ export const useProductMutation = () => {
 
 	const mutation = useMutation({
 		mutationFn: productActions.createProduct,
-		onSuccess: (product) => {
+
+		//vamos a hacer una mutacion optimista, esta se hace 
+		//en la seccion onMutate, ya que queremos que se dispare
+		//tan pronto como se llame la mutacion
+
+		onMutate: (product) => {
+			console.log('mutando optimistic', product);
+
+			//creamos un producto optimista, que tendrá todo lo que nos retorna 
+			//la respuesta del back
+			//con el agregado de que tambien tendrá el id, 
+			//ese se asigna del front y no del back entonces
+			//agregamos uno random
+
+			//optimistic product
+			const optimisticProduct: Product = {
+				id: Math.random(),
+				...product,
+			};
+			//almacenar producto en cache
+			//al igual que lo hicimos en el commit anterior
+			//con la diferencia de que ahora se hace en el momento
+			//exacto que se llama la mutacion para no tener que esperar
+			//la respuesta del back
+			queryClient.setQueryData<Product[]>(
+				['products', { filterKey: product.category }],
+				(old) => (old ? [...old, optimisticProduct] : old),
+			);
+		},
+
+		onSuccess: (_) => {
 			console.log('Product created successfully');
 			//llamando esta funcion invalidamos los queries que coincidan
 			//con el key que estamos indicando, esto forza volver a pedir el query
@@ -27,10 +57,10 @@ export const useProductMutation = () => {
 			//aqui lo que se hace es tomar el valor viejo, y concatenar el nuevo
 			//en este caso como es un arreglo agregamos el nuevo elemento al final de la lista
 			//en caso de que exista, y si no existe, regresamos el viejo
-			queryClient.setQueryData<Product[]>(
-				['products', { filterKey: product.category }],
-				(old) => (old ? [...old, product] : old),
-			);
+			// queryClient.setQueryData<Product[]>(
+			// 	['products', { filterKey: product.category }],
+			// 	(old) => (old ? [...old, product] : old),
+			// );
 		},
 		onSettled: () => {
 			console.log('Product creation process completed');
