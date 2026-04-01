@@ -9,16 +9,16 @@ export const useProductMutation = () => {
 	const mutation = useMutation({
 		mutationFn: productActions.createProduct,
 
-		//vamos a hacer una mutacion optimista, esta se hace 
+		//vamos a hacer una mutacion optimista, esta se hace
 		//en la seccion onMutate, ya que queremos que se dispare
 		//tan pronto como se llame la mutacion
 
 		onMutate: (product) => {
 			console.log('mutando optimistic', product);
 
-			//creamos un producto optimista, que tendrá todo lo que nos retorna 
+			//creamos un producto optimista, que tendrá todo lo que nos retorna
 			//la respuesta del back
-			//con el agregado de que tambien tendrá el id, 
+			//con el agregado de que tambien tendrá el id,
 			//ese se asigna del front y no del back entonces
 			//agregamos uno random
 
@@ -36,10 +36,19 @@ export const useProductMutation = () => {
 				['products', { filterKey: product.category }],
 				(old) => (old ? [...old, optimisticProduct] : old),
 			);
+
+			//exportamos para tener el contexto en el onsucess
+			return {
+				optimisticProduct,
+			};
 		},
 
-		onSuccess: (_) => {
+		onSuccess: (product, variables, context) => {
 			console.log('Product created successfully');
+			//product, respuesta de la promesa
+			//variables, lo que mandamos a la mutacion
+			//context, lo que retornamos de la mutacion
+			console.log({ product, variables, context });
 			//llamando esta funcion invalidamos los queries que coincidan
 			//con el key que estamos indicando, esto forza volver a pedir el query
 			//cuando se muestre una vista donde se esté usando
@@ -61,6 +70,29 @@ export const useProductMutation = () => {
 			// 	['products', { filterKey: product.category }],
 			// 	(old) => (old ? [...old, product] : old),
 			// );
+
+			//si todo salio bien, vamos a quitar la querie del producto anterior en caso
+			//de que la hayamos consultado, ya que el id que tiene es incorrecto
+			queryClient.removeQueries({
+				queryKey: ['product',context?.optimisticProduct.id],
+				exact: true,
+			});
+
+			//con esto reemplazamos el producto optimista
+			//por el que realmente se creo desde el backend, si no lo encontramos es porque
+			//no se habia creado, entonces no modificamos nada
+			queryClient.setQueryData<Product[]>(
+				['products', { filterKey: product.category }],
+				(old) => {
+					if (!old) return [product];
+
+					return old.map((cacheProd) => {
+						return cacheProd.id === context?.optimisticProduct.id
+							? product
+							: cacheProd;
+					});
+				},
+			);
 		},
 		onSettled: () => {
 			console.log('Product creation process completed');
