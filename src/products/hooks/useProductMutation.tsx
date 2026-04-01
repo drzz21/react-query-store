@@ -95,8 +95,35 @@ export const useProductMutation = () => {
 			);
 		},
 		onSettled: () => {
-			console.log('Product creation process completed');
+			// console.log('Product creation process completed');
 		},
+		onError: (error, variables, context) => {
+			// console.log({ error, variables, context });
+			//on error recibe variables y context, y ademas recibe
+			//el erorr retornado por el backend,
+			//lo que haremos igual que en el escenario anterior
+			//es primero eliminar la query no valida,
+			//ya que ese id temporal que agregamos solo generaria
+			//basura en el caché
+			queryClient.removeQueries({
+				queryKey: ['product',context?.optimisticProduct.id],
+				exact: true,
+			});
+
+			//tambien manualmente asignamos en nuestro query
+			//de nuevo la info, para eliminar el elemento con id temporal
+			//ya que como la peticion falló, ese elemento no debería estar ahí
+			queryClient.setQueryData<Product[]>(
+				['products', { filterKey: variables.category }],
+				(old) => {
+					if (!old) return [];
+
+					return old.filter((cacheProd) => {
+						return cacheProd.id != context?.optimisticProduct.id
+					});
+				},
+			);
+		}
 	});
 
 	return mutation;

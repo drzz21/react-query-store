@@ -54,7 +54,13 @@ interface ProductLike {
 //los valores que tiene el producto creado
 export const createProduct = async (product: ProductLike) => {
 	//ponemos el delay de 2 segundos
+	console.log('calling creating product');
 	await sleep(5);
+
+	//deliberadamente provocamos error para validar
+	//el funcionamiento del onError de la mutacion
+	throw new Error('Error al crear el producto');
+
 	//de este modo se hace la insercion en la api de json server, enviando el producto en el body
 	//de la req
 	const { data } = await productsApi.post<Product>('/products', product);
